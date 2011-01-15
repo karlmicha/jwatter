@@ -52,10 +52,17 @@ public class Toolkit
 	protected static final String TOOLKIT_VERSION = "0.1";
 
 	protected static final String usageMessage =
-			"Usage: " + Toolkit.class.getSimpleName()
-					+ " PROPERTIES_FILE [START_URL]";
+			"Usage: " + Toolkit.class.getSimpleName() + " [START_URL]";
 
-	protected static String toolkitPropertiesFilename;
+	protected static String toolkitPropertiesFilename =
+	        System.getProperties().getProperty("toolkit.properties");
+	static {
+	    if (toolkitPropertiesFilename == null) {
+	        throw new RuntimeException(
+	                "toolkit.properties is null, use -Dtoolkit.properties=resources/toolkit.properties");
+	    }
+	}
+
 	protected static String startUrl = null;
 
 	protected Toolkit ( BrowserController browserController,
@@ -202,18 +209,13 @@ public class Toolkit
 				arguments.add(arg);
 			}
 		}
-		if ( arguments.size() < 1 )
-		{
-			throw new UsageException("no properties file specified");
-		}
-		if ( arguments.size() > 2 )
+		if ( arguments.size() > 1 )
 		{
 			throw new UsageException("too many arguments");
 		}
-		toolkitPropertiesFilename = arguments.get(0);
-		if ( arguments.size() > 1 )
+		if ( arguments.size() > 0 )
 		{
-			startUrl = arguments.get(1);
+			startUrl = arguments.get(0);
 		}
 	}
 }
