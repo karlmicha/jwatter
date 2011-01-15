@@ -1,0 +1,50 @@
+<html>
+    <head>
+	<title>Javascript Test</title>
+	<script type="text/javascript">
+	    function disable_alert() {
+		if (savedalert != undefined) return;
+		savedalert = window.alert;
+		window.alert = function(msg) {};
+		show_saved();
+	    }
+	    function disable_confirm() {
+		if (savedconfirm != undefined) return;
+		savedconfirm = window.confirm;
+		window.confirm = function(msg) { return false; };
+		show_saved();
+	    }
+	    function enable_alert() {
+		if (savedalert == undefined) return;
+		window.alert = savedalert;
+		savedalert = undefined;
+		show_saved();
+	    }
+	    function enable_confirm() {
+		if (savedconfirm == undefined) return;
+		window.confirm = savedconfirm;
+		savedconfirm = undefined;
+		show_saved();
+	    }
+	    function show_saved() {
+		document.getElementById('savedalertspan').firstChild.data = savedalert;
+		document.getElementById('savedconfirmspan').firstChild.data = savedconfirm;
+	    }
+	    savedalert = undefined;
+	    savedconfirm = undefined;
+	</script>
+    </head>
+    <body onload="show_saved()">
+	<div>
+	    <a href="#" onclick="window.alert('alert message')">alert</a><br>
+	    <a href="#" onclick="document.getElementById('confirmreturnvalue').firstChild.data=window.confirm('confirm message')">confirm</a><br>
+	    <a href="javascript:disable_alert()">disable window.alert</a><br>
+	    <a href="javascript:enable_alert()">enable window.alert</a><br>
+	    <a href="javascript:disable_confirm()">disable window.confirm</a><br>
+	    <a href="javascript:enable_confirm()">enable window.confirm</a>
+	</div>
+	<div>confirm returned <span id="confirmreturnvalue" class="confirmreturnvalue">&nbsp;</span></div>
+	<div>window.alert=<span id="savedalertspan">&nbsp;</span></div>
+	<div>window.confirm=<span id="savedconfirmspan">&nbsp;</span></div>
+    </body>
+</html>
