@@ -1,0 +1,96 @@
+#summary Installing and using JWatter
+#labels Featured
+
+= Installation and configuration =
+
+System requirements:
+ * Java 5 or higher
+ * Firefox 2.0 or higher
+ * MSIE will be supported in the future
+
+The code is organized as follows:
+ * build: ant build directory
+ * lib: third party software
+ * scripts: Unix shell scripts and Windows batch scripts for various tools
+ * resources: toolkit resources (e.g. properties file)
+ * src/java: framework and toolkit sources
+ * tests/java: framework and toolkit tests
+ * tests/resources: resources for tests (properties files, local test pages)
+
+If not using Eclipse, run
+{{{
+ant compile
+}}}
+This should build the web automation framework and the toolkit.
+
+Run the framework and toolkit tests to see if your setup is working:
+{{{
+ant unit-tests
+}}}
+These tests start up a browser, but they do not a webserver, instead they use local HTML files.
+
+If you use Eclipse, run `ant eclipse` to create the classpath and project files. Then create a new project from existing sources in Eclipse. You can run the framework tests as unit tests in Eclipse.
+
+To use the web automation toolkit, adjust the settings in `resources/toolkit.properties` to your needs. Close all Firefox windows (note: currently the toolkit uses Firefox only, but this will change in future versions). Then run the command
+{{{
+./scripts/webtoolkit
+}}}
+This is a Unix shell script. On Windows, use Cygwin. The toolkit starts a new Firefox browser and loads the URL that is configured in the toolkit properties file. At the toolkit prompt, type *h* or *help* to see a list of the available commands. You can use Firefox to navigate to any page. To exit the toolkit, type *q* or *quit*. This will close Firefox.
+
+= Writing tests =
+
+Create automated tests for your web application:
+ # Make sure your web server is running and serving your application.
+ # Create an Eclipse Java project for your automated tests.
+ # Edit `resources/toolkit.properties`:
+  * Set org.jwatter.toolkit.Toolkit.startupUrl to the entry URL of your web application.
+  * Set org.jwatter.toolkit.Toolkit.outputDir to the Java source folder in your Eclipse project.
+  * Set org.jwatter.toolkit.Toolkit.basePackageName to the package name that you want to use for your test classes, for example _com.myapp.webtests_.
+  * Set org.jwatter.toolkit.Toolkit.actorPropertiesFile to the properties filename that you want to use for test properties.
+ # Make sure you have no Firefox windows open.
+ # Start the web automation toolkit. The toolkit brings up a new Firefox window with the start page of your web application.
+ # If necessary, log in to your web application (unless you are writing tests for the login page).
+ # Navigate to the page you want to automate.
+ # Type the following command in the toolkit command prompt: *generate MyPage* (replace _MyPage_ with an appropriate name for the page).
+ # Refresh your Eclipse project. You should now see three new classes in your Java source folder: com/myapp/webtests/pages/actor/MyPageActor.java, com/myapp/webtests/pages/MyPage.java, and com/myapp/webtests/tests/MyPageTest.java.
+ # Add methods to MyPage.java as required by your tests (see [[#Page_classes|Page classes]]).
+ # Add test methods to MyPageTest.java (see [[#Test_cases|Test cases]]).
+
+= Troubleshooting =
+
+Q: When I run a test, Firefox displays a warning about an invalid certificate.
+
+A: Your web application uses HTTPS. You can add a security exception:
+ # Start Firefox (if you specified a browser profile in toolkit.properties, start firefox with that profile: firefox -P profilename).
+ # Point it to the URL that causes the certificate exception.
+ # Accept the certificate and add a permanent security exception.
+ # Close Firefox.
+
+Q: I get webdriver exceptions after I updated the web automation framework.
+
+A: It is possible that the webdriver extension was updated to a new version. Remove the extension from the test profile, so that webdriver will install a new extension the next time you run a test:
+ # Start Firefox with the test profile (firefox -P profilename).
+ # Uninstall the webdriver extension (Options / Add Ons).
+ # Close Firefox.
+Manual installation of the webdriver extension (*_obsolete_*):
+ # Extract the webdriver extension zip file from webdriver-firefox.jar, unpack it and copy the extension files to the webtest profile (see below).
+ # Start Firefox with the webtest profile.
+ # You should see the Add Ons dialogue with a message that a new extension has been installed.
+ # Close Firefox.
+To get the webdriver extension files and place them in the test profile, follow these steps (*_obsolete_*):
+ # Linux:
+ jar xf lib/webdriver/webdriver-firefox.jar webdriver-extension.zip
+ mkdir $HOME/.mozilla/firefox/abcd1234.profilename/extensions/fxdriver@googlecode.com
+ unzip webdriver-extension.zip -d $HOME/.mozilla/firefox/abcd1234.profilename/extensions/fxdriver@googlecode.com
+ 
+ # Windows:
+ jar xf lib\webdriver\webdriver-firefox.jar webdriver-extension.zip
+ mkdir C:\Documents and Settings\{username}\Local Settings\Application Data\Mozilla\Firefox\Profiles\abcd1234.profilename\extensions\fxdriver@googlecode.com
+ unzip webdriver-extension.zip -d C:\Documents and Settings\{username}\Local Settings\Application Data\Mozilla\Firefox\Profiles\abcd1234.profilename\extensions\fxdriver@googlecode.com
+
+Q: I get org.openqa.selenium.WebDriverException: Failed to connect to binary FirefoxBinary.
+
+A: This happens mostly on Windows systems with slow filesystems and is caused when a new Firefox process is created immediately after another Firefox process has just terminated, and the new process is still seeing the old process. The solution is to wrap a batch script around the Firefox binary that sleeps for a couple of seconds after Firefox has terminated.
+ * When running tests with ant, uncomment a line in `build/include/macros.xml` (search for webdriver).
+ * When running tests in eclipse, add a JVM argument `-Dwebdriver.firefox.bin=scripts/webdriver_firefox_wrapper.bat` in the run configuration.
+ * For the web automation toolkit, uncomment a line in `scripts/webtoolkit.bat`.
