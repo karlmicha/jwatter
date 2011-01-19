@@ -143,7 +143,7 @@ public class BrowserController implements Runnable
 			{
 				throw new BrowserControllerException("Browser is already open");
 			}
-			if ( profileName != null )
+			if ( profileName != null && !profileName.equals(""))
 			{
 				System.out.print("Creating browser with " + profileName
 						+ " profile...");
