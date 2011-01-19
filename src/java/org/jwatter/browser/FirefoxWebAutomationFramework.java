@@ -50,6 +50,9 @@ public class FirefoxWebAutomationFramework
 	@Override
 	public void createBrowser ( String profileName ) throws Exception {
 	    FirefoxProfile profile = new ProfilesIni().getProfile(profileName);
+	    if (profile == null) {
+	        throw new NoSuchProfileException(profileName);
+	    }
 	    profile.setAcceptUntrustedCertificates(false);
 		browser = new FirefoxDriver(profile);
 		initBrowser();
