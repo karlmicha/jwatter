@@ -1,0 +1,61 @@
+<project name="macros">
+
+	<macrodef name="compilesources" description="Compile source files">
+		<attribute name="src" description="Directory with source files"/>
+		<attribute name="dest" description="Directory where to put class files"/>
+		<sequential>
+			<echo message="Source directory set to @{src}"/>
+			<echo message="Destination directory set to @{dest}"/>
+			<mkdir dir="@{dest}"/>
+			<javac srcdir="@{src}" destdir="@{dest}" debug="true" source="1.5" encoding="utf-8">
+				<include name="**/*.java"/>
+				<classpath>
+					<path refid="build.classpath"/>
+				</classpath>
+			</javac>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="runtests" description="Run JUnit tests">
+		<attribute name="dest" description="Directory where to put reports"/>
+		<attribute name="propertiesfile" default="" description="Properties filename, will be passed to JVM as system property"/>
+		<element name="source-files" description="Specifies the test source files"/>
+		<sequential>
+			<mkdir dir="@{dest}"/>
+			<junit printsummary="yes" fork="yes" haltonfailure="no" failureproperty="junit.test.failure" errorproperty="junit.test.error" filtertrace="off" showoutput="yes">
+				<classpath>
+					<path refid="build.classpath"/>
+				</classpath>
+				<!-- uncomment the following line on Windows systems with slow filesystem -->
+				<!--<sysproperty key="webdriver.firefox.bin" value="${scripts.dir}/webdriver_firefox_wrapper.bat"/>-->
+				<sysproperty key="tests.properties" value="@{propertiesfile}"/>
+				<formatter type="xml" usefile="yes"/>
+				<batchtest fork="yes" todir="@{dest}">
+					<source-files/>
+				</batchtest>
+			</junit>
+			<buildreport dest="@{dest}">
+				<sourcefiles>
+					<fileset dir="@{dest}">
+						<include name="TEST-*.xml"/>
+					</fileset>
+				</sourcefiles>
+			</buildreport>
+			<fail if="junit.test.error" message="An error occured while running the unit tests"/>
+			<fail if="junit.test.failure" message="One or more unit tests failed"/>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="buildreport" description="Create JUnit test report">
+		<attribute name="dest" description="Directory where to put reports"/>
+		<element name="sourcefiles" description="JUnit test result xml files"/>
+		<sequential>
+			<mkdir dir="@{dest}"/>
+			<junitreport todir="@{dest}">
+				<sourcefiles/>
+				<report todir="@{dest}"/>
+			</junitreport>
+		</sequential>
+	</macrodef>
+
+</project>

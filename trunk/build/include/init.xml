@@ -1,0 +1,54 @@
+<project name="init">
+
+	<!-- project.dir is set in the importing build file -->
+
+	<property name="project.name" value="jwatter"/>
+	<property name="version" value="0.4.4"/>
+
+	<!-- directory layout -->
+	<property name="src.dir" value="${project.dir}/src/java"/>
+	<property name="src.tests.dir" value="${project.dir}/tests/java"/>
+	<property name="build.dir" value="${project.dir}/build"/>
+	<property name="build.dest.dir" value="${build.dir}/classes/framework"/>
+	<property name="build.tests.dest.dir" value="${build.dir}/classes/tests"/>
+	<property name="build.include.dir" value="${build.dir}/include"/>
+	<property name="build.javadocs.dir" value="${build.dir}/apidocs"/>
+	<property name="jar.dest.dir" value="${build.dir}/jars"/>
+	<property name="zip.dest.dir" value="${build.dir}/zips"/>
+	<property name="zip.src.dir" value="${zip.dest.dir}/${project.name}-${version}"/>
+	<property name="build.lib.dir" value="${build.dir}/lib" />
+	<property name="lib.dir" value="${project.dir}/lib"/>
+	<property name="scripts.dir" value="${project.dir}/scripts"/>
+	<property name="resources.dir" value="${project.dir}/resources"/>
+	<property name="resources.tests.dir" value="${project.dir}/tests/resources"/>
+	<property name="reports.tests.dir" location="${project.dir}/tests/reports"/>
+
+	<property name="jar.filename" value="${project.name}-${version}.jar"/>
+	<property name="zip.filename" value="${project.name}-${version}.zip"/>
+
+	<path id="build.src">
+		<dirset dir="${project.dir}">
+			<include name="src/java"/>
+		</dirset>
+	</path>
+
+	<fileset id="thirdparty.jars" dir="${lib.dir}">
+		<include name="junit/junit*.jar"/>
+		<include name="selenium*/selenium-java-*.jar"/>
+		<exclude name="selenium*/selenium-java-*-srcs.jar"/>
+		<include name="selenium*/libs/*.jar"/>
+		<include name="watij*/watij*.jar"/>
+	</fileset>
+
+	<path id="build.classpath">
+		<pathelement path="${build.dest.dir}"/>
+		<pathelement path="${build.tests.dest.dir}"/>
+		<fileset refid="thirdparty.jars"/>
+		<pathelement location="${java.home}/lib/plugin.jar"/>
+	</path>
+
+	<import file="${build.include.dir}/macros.xml"/>
+	<import file="${build.include.dir}/javadoc.xml"/>
+	<import file="${build.include.dir}/eclipse.xml"/>
+
+</project>

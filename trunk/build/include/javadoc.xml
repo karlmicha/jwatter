@@ -1,0 +1,11 @@
+<project name="javadoc">
+	<target name="javadoc" description="Generates the java documentation">
+		<mkdir dir="${build.javadocs.dir}"/>
+		<javadoc
+			sourcepathref="build.src"
+			destdir="${build.javadocs.dir}"
+			classpathref="build.classpath"
+			encoding="utf-8"
+		/>
+	</target>
+</project>
