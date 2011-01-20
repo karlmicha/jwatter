@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="eclipse">
+
+	<target name="eclipse.init">
+		<taskdef name="eclipse" classname="prantl.ant.eclipse.EclipseTask">
+			<classpath location="${build.lib.dir}/ant-eclipse/ant-eclipse-1.0-jvm1.2.jar"/>
+		</taskdef>
+		<path id="eclipse.classpath">
+			<fileset refid="thirdparty.jars"/>
+			<pathelement location="${java.home}/lib/plugin.jar"/>
+		</path>
+		<path id="eclipse.source.paths">
+			<pathelement location="${src.dir}"/>
+			<pathelement location="${src.tests.dir}"/>
+		</path>
+	</target>
+
+	<target name="eclipse.do" depends="eclipse.init">
+		<basename property="eclipse.project.basename" file="${basedir}"/>
+		<property name="eclipse.projectname" value="${ant.project.name} ${eclipse.project.basename}"/>
+		<echo message="generating eclipse project: ${eclipse.projectname} ..."/>
+		<eclipse>
+			<project name="${eclipse.projectname}"/>
+			<classpath>
+				<source pathref="eclipse.source.paths"/>
+				<library pathref="eclipse.classpath"/>
+				<output path="bin"/>
+			</classpath>
+		</eclipse>
+	</target>
+
+	<!-- public targets: -->
+
+	<target name="eclipse" depends="eclipse.do" description="Builds eclipse project with src/java and tests/java as source folders"/>
+
+	<target name="eclipse.clean" description="Deletes eclipse project files">
+		<delete file=".project"/>
+		<delete file=".classpath"/>
+	</target>
+
+</project>

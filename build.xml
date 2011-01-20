@@ -1,0 +1,93 @@
+<project name="jwatter" basedir=".">
+
+	<!-- Directory where this build file lives -->
+	<dirname property="project.dir" file="${ant.file}"/>
+
+	<import file="${project.dir}/build/include/init.xml"/>
+
+	<echo message="${project.name} ${version}"/>
+	<echo message="JAVA_HOME=${java.home}"/>
+
+	<target name="compile" description="Compiles all classes, except unit tests">
+		<echo message="------- [Compiling the JWatter framework] ------"/>
+		<compilesources src="${src.dir}" dest="${build.dest.dir}"/>
+	</target>
+
+	<target name="compile-tests" depends="compile" description="Compiles all unit tests">
+		<echo message="------- [Compiling the JWatter unit tests] ------"/>
+		<compilesources src="${src.tests.dir}" dest="${build.tests.dest.dir}"/>
+	</target>
+
+	<target name="jar" depends="run-tests" description="Creates a jar file with all Java classes">
+		<mkdir dir="${jar.dest.dir}"/>
+		<jar destfile="${jar.dest.dir}/${jar.filename}" basedir="${build.dest.dir}"/>
+	</target>
+
+	<target name="zip" depends="jar" description="Creates a zip file with the jar file and the scripts">
+		<mkdir dir="${zip.src.dir}"/>
+		<copy file="${jar.dest.dir}/${jar.filename}" todir="${zip.src.dir}"/>
+		<mkdir dir="${zip.src.dir}/scripts"/>
+		<copy todir="${zip.src.dir}/scripts">
+			<fileset dir="${scripts.dir}"/>
+		</copy>
+		<chmod dir="${zip.src.dir}/scripts" perm="0755" includes="*" excludes="*.bat"/>
+		<mkdir dir="${zip.src.dir}/resources"/>
+		<copy todir="${zip.src.dir}/resources">
+			<fileset dir="${resources.dir}"/>
+		</copy>
+		<mkdir dir="${zip.dest.dir}"/>
+		<zip destfile="${zip.dest.dir}/${zip.filename}" basedir="${zip.src.dir}"/>
+	</target>
+
+	<target name="clean" depends="clean-tests" description="Removes all class files, java documentation, and test reports">
+		<delete dir="${build.dest.dir}"/>
+		<delete dir="${jar.dest.dir}"/>
+		<delete dir="${zip.dest.dir}"/>
+		<delete dir="${build.javadocs.dir}"/>
+	</target>
+
+	<target name="clean-tests" description="Removes all unit test reports">
+		<delete dir="${build.tests.dest.dir}"/>
+		<delete dir="${reports.tests.dir}"/>
+	</target>
+
+	<target name="run-tests" depends="compile-tests" description="Runs all non-browser-based unit tests and creates reports">
+		<echo message="------[ Running non-browser-based JUnit tests in ${src.tests.dir} ]------"/>
+		<runtests dest="${reports.tests.dir}" propertiesfile="${resources.tests.dir}/tests.properties">
+			<source-files>
+				<fileset dir="${src.tests.dir}">
+					<include name="**/*Test.java"/>
+					<exclude name="org/jwatter/browser/**"/>
+				</fileset>
+			</source-files>
+		</runtests>
+	</target>
+
+	<target name="run-browser-tests" depends="compile-tests" description="Runs all browser-based unit tests and creates reports">
+		<echo message="------[ Running browser-based JUnit tests in ${src.tests.dir} ]------"/>
+		<runtests dest="${reports.tests.dir}" propertiesfile="${resources.tests.dir}/tests.properties">
+			<source-files>
+				<fileset dir="${src.tests.dir}">
+					<include name="org/jwatter/browser/**Test.java"/>
+				</fileset>
+			</source-files>
+		</runtests>
+	</target>
+
+	<target name="run-all-tests" depends="compile-tests" description="Runs all unit tests and creates reports">
+		<echo message="------[ Running JUnit tests in ${src.tests.dir} ]------"/>
+		<runtests dest="${reports.tests.dir}" propertiesfile="${resources.tests.dir}/tests.properties">
+			<source-files>
+				<fileset dir="${src.tests.dir}">
+					<include name="**/*Test.java"/>
+				</fileset>
+			</source-files>
+		</runtests>
+	</target>
+
+	<target name="debugclasspath" description="Print classpath">
+		<property name="build.classpath" refid="build.classpath"/>
+		<echo message="build.classpath=${build.classpath}"/>
+	</target>
+
+</project>
