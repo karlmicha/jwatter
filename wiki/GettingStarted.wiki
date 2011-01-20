@@ -27,7 +27,7 @@ ant zip
 }}}
 This should build the web automation framework and the toolkit, run some unit tests and create a zip file with the jwatter jar and the scripts. The zip file is created in `build/zips`.
 
-To see if your setup is working, you can run some browser tests. Edit the file `tests/resources/tests.properties`, search for the string _file:///_ and adjust the URL path to point to your `tests/resources` directory. Then type:
+To see if your setup is working, you can run some browser tests. Edit the file `tests/resources/tests.properties`, search for the string "file:///" and adjust the URL path to point to your `tests/resources` directory. Then type:
 {{{
 ant run-browser-tests
 }}}
