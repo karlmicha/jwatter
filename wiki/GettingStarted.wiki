@@ -23,15 +23,15 @@ Get the following third party jar files and place them in subdirectories inside 
  * [http://watij.com/ Watij]
 If not using Eclipse, run
 {{{
-ant compile
+ant zip
 }}}
-This should build the web automation framework and the toolkit.
+This should build the web automation framework and the toolkit, run some unit tests and create a zip file with the jwatter jar and the scripts. The zip file is created in `build/zips`.
 
-Run the framework and toolkit tests to see if your setup is working:
+To see if your setup is working, you can run some browser tests. Edit the file `tests/resources/tests.properties`, search for the string _file:///_ and adjust the URL path to point to your `tests/resources` directory. Then type:
 {{{
-ant unit-tests
+ant run-browser-tests
 }}}
-These tests start up a browser, but they do not a webserver, instead they use local HTML files.
+These tests start up a web browser and use the HTML files in `tests/resources`.
 
 If you use Eclipse, run `ant eclipse` to create the classpath and project files. Then create a new project from existing sources in Eclipse. You can run the framework tests as unit tests in Eclipse.
 
@@ -47,7 +47,7 @@ To use a different Firefox profile than your default profile, first create the p
 
 Create automated tests for your web application:
  # Make sure your web server is running and serving your application.
- # Create an Eclipse Java project for your automated tests.
+ # Create an Eclipse Java project for your automated tests and add the jwatter jar file and the third party jar files to the build path.
  # Edit `resources/toolkit.properties`:
   * Set `org.jwatter.toolkit.Toolkit.startupUrl` to the entry URL of your web application.
   * Set `org.jwatter.toolkit.Toolkit.outputDir` to the Java source folder in your Eclipse project.
