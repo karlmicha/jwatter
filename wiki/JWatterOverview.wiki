@@ -1,0 +1,68 @@
+#summary Provides an overview of JWatter
+
+Developing automated tests for web applications involves a number of software components. This section provides an overview of them. It also explains some major obstacles that developers of automated web tests face and how JWatter attempts to solve them.
+
+= Web browser =
+
+The web browser provides the client UI to interact with the web application. It communicates (typically via HTTP) with the web application, which runs on a web server, by requesting pages and rendering them in a browser window on the user's machine. Common web browsers are Mozilla Firefox, Microsoft Internet Explorer, Apple Safari, Google Chrome.
+
+A user interacts with the web application through the web browser, by interacting with elements in a page in the browser window, such as buttons, input fields, drop down menus, rendered text, images, etc., using input devices like a mouse, keyboard, touch pad, etc.
+
+A human tester interacts with the web application in a controlled way, following a script (test plan), and observing whether this interaction leads to an expected result.
+
+= Web browser automation =
+
+In automated web testing, the human tester is replaced with a computer program, the automated tests. In the form of testing described here, it is desirable that the automated tests interact with the web application in much the same way as a human user would do: through a web browser.
+
+In order to achieve this, people have developed browser automation frameworks. A typical browser automation framework consists of a library in some programming language (e.g. Java), with an API that exposes methods to control the browser, and specifically, to interact with a web page rendered in the browser.
+
+In addition to the library, some browsers (e.g. Firefox) require a plugin or extension: a piece of software that is installed inside the browser and provides the library with access to the rendered page (specifically, its DOM tree and layout properties) and to browser controls. Other browsers (e.g. IE) expose an API that allows this access without installing an extension.
+
+[http://watij.com Watij] is an open source browser automation framework in Java for IE. It is built on top of [http://www.teamdev.com/downloads/jexplorer/javadoc/index.html JExplorer], a low-level automation library for IE. A new API for Watij, called [http://watij.com/webspec-api WebSpec], supports multiple browsers on different operating systems.
+
+[http://code.google.com/p/selenium/ Webdriver] is an open source browser automation framework that supports multiple browsers, including Firefox, IE and Chrome. JExplorer is used to automate IE. Firefox is automated through the [http://code.google.com/p/selenium/wiki/FirefoxDriverInternals webdriver extension]. The webdriver extension runs a small server inside Firefox to communicate with the webdriver library. Webdriver is [http://seleniumhq.org/docs/09_webdriver.html currently being integrated into Selenium]. [http://seleniumhq.org/ Selenium] is another browser automation framework which aims to be browser-independent. It provides interaction with web pages through Javascript sandboxing (which leads to a number of limitations).
+
+[http://htmlunit.sourceforge.net/ HtmlUnit] is a Java library that provides its own HTTP client and Javascript engine. It acts like a web browser with a Java API. It therefore allows Java applications to interact with web applications without the need to open up a browser window. HtmlUnit is included in Webdriver, allowing automation code to use a real browser and a headless browser with the same API.
+
+= The JWatter web automation and testing framework =
+
+The JWatter framework is a Java API that allows a test application to interact with a web application. It is designed to be simple and browser independent.
+
+== Browser independent API ==
+
+JWatter is not (yet) another browser automation framework. Instead, JWatter is built on top of an abstract browser automation framework, specified as a Java interface. To use JWatter, an implementation of this framework is needed for the actual browser automation framework being used. Currently, JWatter includes an implementation for webdriver and partial implementations for Watij and HtmlUnit.
+
+Another advantage of this design is that users can switch to a different browser automation framework if the current one is no longer supported or the new framework has better support for a particular browser.
+
+Having a browser-independent API allows us to write test code without making assumptions about the web browser the tests will be using. We can switch from one web browser to another by changing a setting in a properties file. This way we can use the same test code to test on multiple browsers.
+
+== Designed for automatic code generation ==
+
+The JWatter API is simpler than common browser automation framework APIs. It is designed for automatic code generation rather than manual coding.
+
+Browser automation frameworks such as webdriver have types that represent HTML elements, attributes, or nodes in the DOM tree, with methods to interact with these elements. This allows a programmer to store references to elements in a web page. However, this can lead to unexpected behavior because such references can become stale:
+{{{
+WebElement inputElement = browser.findElement(By.id("username_input"));
+inputElement.clear();
+inputElement.sendKeys("qauser1@myapp.com");
+}}}
+In contrast, JWatter has a flat API. It discourages programmers from storing references to web page elements. Instead, when a test application wants to interact with an element, it calls a method and passes information suitable to identify the element to the method:
+{{{
+browserFramework.setTextInputWithId("username_input", "qauser1@myapp.com");
+}}}
+The [#The_JWatter_web_automation_toolkit JWatter web automation toolkit] takes advantage of the flat API design by generating low-level Java code for accessing elements in web pages automatically.
+
+= The JWatter web automation toolkit =
+
+The JWatter web automation toolkit is an application that helps test developers write automated tests more efficiently by automating common tasks during test development.
+
+Automated tests interact with elements in a web page, such as buttons, input fields, links, images, text. In order to do so, a test has to locate an element, typically using HTML properties such as tag name, attributes, CSS selectors, etc. For example, a test that needs to access the following input field might do so by specifying its id `f_dt`:
+{{{
+<input type="text" id="f_dt"/>
+}}}
+Finding and managing these properties poses some challenges:
+ * HTML properties are not visible in the rendered page. In order to find the tag name and attributes of a rendered element, a test developer would have to look at the page source or use a web development tool such as [http://getfirebug.com/ Firebug]. For complex pages it can be difficult to find an element in the HTML source. If an element is dynamically generated by Javascript, it doesn't even exist in the HTML source.
+ * Using HTML tag names and attributes directly in test code leads to duplicate code with the same tag name and attribute being used in multiple places if different tests use the same element. If the web developers change an attribute, the test code has to be fixed in multiple places.
+The JWatter web automation toolkit avoids both problems. It automatically extracts tag names and attributes of all relevant elements from a web page (first problem) and writes them to a properties file as Java properties (second problem). An element is relevant if there is a method in the web automation framework that can act on it. Test code can then refer to tag names and attributes indirectly via Java properties. If an attribute changes in a web page, only a property in the properties file needs to be updated.
+
+In addition to pulling tag names and attributes from web pages, the JWatter toolkit also generates Java source code that encapsulates calls to web automation framework methods with the appropriate Java properties as arguments. More specifically, for each web page, the JWatter toolkit creates a Java class with methods that act on the elements in that particular page. A programmer who wants to access an element in a page can easily choose from the available methods for that page without having to know the details of how this element is implemented. See [LevelsOfAbstraction#Actor_classes actor classes] for more details.
