@@ -5,7 +5,7 @@ JWatter provides three base classes (and corresponding Java interfaces) that hel
  * `org.jwatter.model.Window`: represents a collection of pages that are displayed in the same browser window. The abstract class `org.jwatter.model.WindowImpl` implements this interface.
  * `org.jwatter.model.Frame`: represents a collection of pages that are displayed in the same HTML frame or embedded frame. This is an extension of `org.jwatter.model.Window`. The abstract class `org.jwatter.model.FrameImpl` implements this interface.
 
-`org.jwatter.model.Page` is the main interface for modeling web applications. All page classes and actor classes implement this interface. A page has a method `onPage()` that a test can use to determine whether the browser is currently displaying the page. In the default implementation (in `org.jwatter.model.PageImpl`) this is determined based on the URL. Pages that need to check other criteria can override `onPage()`. Other page methods have to do with [PageLoadingAndSynchronization page loading/synchronization].
+`org.jwatter.model.Page` is the main interface for modeling web applications. All page classes and actor classes implement this interface. A `Page` instance has a method `onPage()` that a test can use to determine whether the browser is currently displaying the page. In the default implementation (in `org.jwatter.model.PageImpl`) this is determined based on the URL. Pages that need to check other criteria can override `onPage()`. Other `Page` methods have to do with [PageLoadingAndSynchronization page loading/synchronization].
 
 = Windows =
 
