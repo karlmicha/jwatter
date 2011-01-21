@@ -1,6 +1,6 @@
 #summary Provides an overview of JWatter
 
-Developing automated tests for web applications involves a number of software components. This section provides an overview of them. It also explains some major obstacles that developers of automated web tests face and how JWatter attempts to solve them.
+Developing automated tests for web applications involves a number of software components. This page provides an overview of them. It also explains some major obstacles that developers of automated web tests face and how JWatter attempts to solve them.
 
 = Web browser =
 
