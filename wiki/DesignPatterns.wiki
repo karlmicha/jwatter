@@ -1,0 +1,139 @@
+#summary Describes design patterns for automated web tests
+
+This page discusses common problems when running automated web tests and describes design patterns that were developed to help avoid such problems.
+
+= Opening/closing the web browser =
+
+Tests should be atomic and self contained. Each test should open a fresh browser and close the browser when the test is complete.
+
+When a test case extends `org.jwatter.test.WebFunctionalTestCase`, you don't have to worry about starting and closing a web browser because the `setUp()` and `tearDown()` methods in `WebFunctionalTestCase` take care of that. This way it is also guaranteed that the browser is closed if a test fails, or an error occurs during test execution.
+
+The web automation toolkit generates test case stubs with the correct base class.
+
+= Logging in and out =
+
+Many web applications require you to log in before you can do anything interesting. The same is true for tests (except tests for the login page). All tests that log in should log out when they are done, otherwise there may be active sessions left behind (although they may expire after some time). Tests that fail or cause errors should log out as well. A test should leave a web application in the same state as it was before the test and not leave anything behind.
+
+To make tests log in and out automatically, we can create a new base class for test cases that extends `WebFunctionalTestCase`, and override `setUp()` and `tearDown()`:
+{{{
+public class LoggedInTestCase extends WebFunctionalTestCase {
+
+    @Override
+    protected void setUp() throws Exception {
+
+        super.setUp();
+        try {
+            signIn();
+        }
+        catch (Exception e) {
+            super.tearDown();
+            throw e;
+        }
+        catch (Error e) {
+            super.tearDown();
+            throw e;
+        }
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+
+        try {
+            signOut();
+        }
+        finally {
+            super.tearDown();
+        }
+    }
+}
+}}}
+Note that we catch exceptions and errors thrown by `signIn()` so that we can clean up if an error occurs during login. This is very important, otherwise we end up with an open browser window when a test fails to log in. The same is true for `signOut()`: If an error occurs during logout, we must make sure the browser window is closed.
+
+= Test fixtures involving multiple actions =
+
+Suppose your web application has an _About_ page that opens in a new window and that you want to test. Setting up the test environment would involve the following steps:
+ # Start the browser, open the login page.
+ # Log in.
+ # Open the About page.
+If an error occurs in 2., we must make sure that the browser is closed. If an error occurs in 3., we must make sure that the test is logged out and the browser is closed. If an error occurs while logging out, we must still close the browser.
+
+Similarly, clean up would involve:
+ # Close the About page.
+ # Log out.
+ # Close the browser.
+If an error occurs in 1., we still need to log out. If an error occurs in 2., we must still close the browser.
+The control flow in the test fixture looks like this:
+
+<img src="http://jwatter.googlecode.com/svn/wiki/images/WebTestFixtureControlFlow.png" alt="control flow in a web test fixture" align="middle">
+
+Instead of overriding `setUp()` and `tearDown()` again in `AboutTest`, we can change `LoggedInTestCase` as follows:
+{{{
+public class LoggedInTestCase extends WebFunctionalTestCase {
+
+    @Override
+    protected void setUp() throws Exception {
+
+        super.setUp();
+        try {
+            signIn();
+            try {
+                this.setUpLoggedInTestCase();
+            }
+            catch (Exception e) {
+                signOut();
+                throw e;
+            }
+            catch (Error e) {
+                signOut();
+                throw e;
+            }
+        }
+        catch (Exception e) {
+            super.tearDown();
+            throw e;
+        }
+        catch (Error e) {
+            super.tearDown();
+            throw e;
+        }
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+
+        try {
+            this.tearDownLoggedInTestCase();
+        }
+        finally {
+            try {
+                signOut();
+            }
+            finally {
+                super.tearDown();
+            }
+        }
+    }
+
+    protected void setUpLoggedInTestCase() throws Exception {
+    }
+
+    protected void tearDownLoggedInTestCase() throws Exception {
+    }
+}
+}}}
+`AboutTest` then can simply override `setUpLoggedInTestCase()` and `tearDownLoggedInTestCase()`:
+{{{
+public class AboutTest extends LoggedInTestCase {
+
+    @Override
+    protected final void setUpLoggedInTestCase() throws Exception {
+        // open About window
+    }
+
+    @Override
+    protected final void tearDownLoggedInTestCase() throws Exception {
+        // close About window
+    }
+}
+}}}
+The advantage of this design is that overriding `setUpLoggedInTestCase()` and `tearDownLoggedInTestCase()` is much simpler than overriding `setUp()` and `tearDown()`. This is especially useful if there are many tests like `AboutTest` for different pages. We put the exception handling logic in the common base class `LoggedInTestCase` instead of every subclass.
