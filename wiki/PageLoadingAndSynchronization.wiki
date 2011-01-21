@@ -1,0 +1,37 @@
+#summary Discusses synchronization between web applications and automation applications
+
+Web automation (including automated testing of web applications) involves two applications:
+ * the web application that runs on a web server and in the web browser
+ * the automation application that interacts with the web application through the web browser
+Synchronizing these two applications is a non trivial issue. As an example, imagine a test clicking on a link that loads a new page and verifying some property of the new page.
+
+In the most simple case where the web application consists only of pure HTML pages (no Javascript or other scripting) and has only one window and no frames, synchronization is not an issue. The click method in the browser automation API can block until the browser has loaded the new page. When the method call returns, the test can access the new page.
+
+Most web applications are not that simple. As soon as Javascript comes into play, or there are frames or multiple windows, synchronization becomes an issue. In general this means that when a browser automation API method returns, there is no guarantee that the action triggered by the method in the browser is completed. There is no way for a browser automation API to determine when a page has finished loading, or even what actions are triggered by an interaction with the browser, without knowledge of the logic of the web application code. Some of the reasons are:
+ * Javascript can run asynchronously.
+ * Server responses from AJAX calls can trigger Javascript to run asynchronously.
+ * Pages that contain frames create new requests to load the frame contents.
+
+It is therefore the responsibility of the test code (or for this matter, the page object code) to make sure that all resources are loaded in the browser before they are accessed. The `Page`, `Window` and `Frame` interfaces in JWatter and the corresponding base classes contain methods that aim at making this as easy as possible (see PagesWindowsFrames).
+
+To open a new page, wrap the method that opens the page in a `Callable` instance and call the `open(Callable)` method on the `Page` instance that represents the new page:
+{{{
+about.open(new Callable() {
+        public void call() throws Exception {
+            Home.this.clickLinkWithTextAbout();
+        }
+    });
+}}}
+This clicks on the About link in the Home page and waits until the page is loaded by calling `about.onPage()` repeatedly until it returns true. It also sets the browser target to the window (and possibly the frame) containing the About page.
+
+A page object can wait until the page that it represents has completed loading, by calling its `waitUntilLoaded()` method.
+
+A page that wants to open a new window without having a page object for the new window can do so by calling `synchronizeNewWindow(Callable)`:
+{{{
+this.synchronizeNewWindow(new Callable() {
+        public void call() throws Exception {
+            // click link that opens a new window
+        }
+    });
+}}}
+This will block until the new window is open (or the call times out). An example would be a link that opens an external website in a new browser window. Note that `synchronizeNewWindow(Callable)` is not public but is inherited from `org.jwatter.model.PageImpl`, so a page can only call this method on itself.
