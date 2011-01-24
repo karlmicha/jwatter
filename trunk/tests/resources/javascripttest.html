@@ -1,5 +1,7 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
 	<title>Javascript Test</title>
 	<script type="text/javascript">
 	    function disable_alert() {
@@ -36,11 +38,11 @@
     </head>
     <body onload="show_saved()">
 	<div>
-	    <a href="#" onclick="window.alert('alert message')">alert</a><br>
-	    <a href="#" onclick="document.getElementById('confirmreturnvalue').firstChild.data=window.confirm('confirm message')">confirm</a><br>
-	    <a href="javascript:disable_alert()">disable window.alert</a><br>
-	    <a href="javascript:enable_alert()">enable window.alert</a><br>
-	    <a href="javascript:disable_confirm()">disable window.confirm</a><br>
+	    <a href="#" onclick="window.alert('alert message')">alert</a><br/>
+	    <a href="#" onclick="document.getElementById('confirmreturnvalue').firstChild.data=window.confirm('confirm message')">confirm</a><br/>
+	    <a href="javascript:disable_alert()">disable window.alert</a><br/>
+	    <a href="javascript:enable_alert()">enable window.alert</a><br/>
+	    <a href="javascript:disable_confirm()">disable window.confirm</a><br/>
 	    <a href="javascript:enable_confirm()">enable window.confirm</a>
 	</div>
 	<div>confirm returned <span id="confirmreturnvalue" class="confirmreturnvalue">&nbsp;</span></div>
