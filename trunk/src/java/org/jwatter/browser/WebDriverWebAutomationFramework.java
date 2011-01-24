@@ -941,8 +941,9 @@ public abstract class WebDriverWebAutomationFramework
 	protected WebElement findButtonWithText (String text, int which)
 			throws NoSuchElementException, AmbiguousElementException {
 		return findElementWithXPath(
-				"//*[(((name()='input' or name()='INPUT') and @type='submit') or name()='button' or name()='BUTTON') and .=\""
-						+ text + "\"]", which);
+				"//*[((name()='input' or name()='INPUT') and @type='submit' and @value='"
+		                + text + "') or ((name()='button' or name()='BUTTON') and .=\""
+		                + text + "\")]", which);
 	}
 
 	@Override
