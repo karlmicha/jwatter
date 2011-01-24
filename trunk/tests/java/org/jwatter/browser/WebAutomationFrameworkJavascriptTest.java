@@ -143,6 +143,7 @@ public class WebAutomationFrameworkJavascriptTest
 	@AfterClass
 	public static void tearDown () throws Exception
 	{
+	    logger.info("Shutting down browser");
 		browser.closeBrowser();
 	}
 	
