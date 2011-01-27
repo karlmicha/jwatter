@@ -43,7 +43,7 @@ public abstract class WebFunctionalTestCase extends TestCase {
 			.getLogger(WebFunctionalTestCase.class.getName());
 
 	protected static final String PROPERTIES_FILENAME_PROPERTY =
-		"propertiesfile";
+		"tests.properties";
 	protected static final String defaultPropertiesFilename =
 		"functionaltest.web.properties";
 	protected static String propertiesFilename;
