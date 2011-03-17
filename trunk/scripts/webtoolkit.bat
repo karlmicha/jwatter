@@ -16,7 +16,7 @@ REM limitations under the License.
 SET JAVAHOME=%PROGRAMFILES%\Java\jdk1.5.0_11
 SET JAVALIB=%JAVAHOME%\lib
 SET JAVA=%JAVAHOME%\bin\java.exe
-SET CLASSDIR=build\classes
+SET CLASSDIR=build\classes\framework
 SET JARDIR=classes
 
 SET PROPERTIESFILE=resources\toolkit.properties

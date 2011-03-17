@@ -17,15 +17,16 @@ function is_cygwin() {
     eval "cygpath -w /" > /dev/null 2>&1
 }
 
-scriptsdir=`dirname "$0"`
-projectdir=`dirname "$scriptsdir"`
-propertiesfile=$projectdir/resources/toolkit.properties
+scriptpath=`readlink -f "$0"`
+scriptdir="${scriptpath%/*}"
+projectdir="${scriptdir%/*}"
+propertiesfile="$projectdir/resources/toolkit.properties"
 
 # Use this if you compile class files in eclipse:
-CLASSDIR=$projectdir/../bin
+#CLASSDIR="$projectdir/../bin"
 # Use this if you compile class files with ant:
-#CLASSDIR=$projectdir/build/classes
-JARDIR=$projectdir/lib
+CLASSDIR="$projectdir/build/classes/framework"
+JARDIR="$projectdir/lib"
 JAVA=java
 
 CLASSPATH="$CLASSDIR"
